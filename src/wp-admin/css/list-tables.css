@@ -1907,8 +1907,8 @@ div.action-links,
 		opacity: 1;
 	}
 
-	.wp-list-table-scroll:dir(rtl)::before,
-	.wp-list-table-scroll:dir(rtl)::after {
+	.rtl .wp-list-table-scroll::before,
+	.rtl .wp-list-table-scroll::after {
 		transform: scaleX(-1);
 	}
 }
