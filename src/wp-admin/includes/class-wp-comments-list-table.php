@@ -610,8 +610,10 @@ class WP_Comments_List_Table extends WP_List_Table {
 		}
 
 		$this->screen->render_screen_reader_content( 'heading_list' );
+		$table_label = $this->screen->get_screen_reader_text( 'heading_list' );
 
 		?>
+<div class="wp-list-table-scroll" role="region" aria-label="<?php echo esc_attr( $table_label ? $table_label : __( 'Items list' ) ); ?>" tabindex="0">
 <table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
 		<?php
 		if ( ! isset( $_GET['orderby'] ) ) {
@@ -654,6 +656,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 	</tfoot>
 
 </table>
+</div>
 		<?php
 
 		$this->display_tablenav( 'bottom' );

@@ -1790,6 +1790,79 @@ div.action-links,
 /* =Media Queries
 -------------------------------------------------------------- */
 
+@media screen and (min-width: 783px) {
+	.wp-list-table-scroll {
+		clear: both;
+		overflow-x: auto;
+		overflow-y: hidden;
+		border: 1px solid #c3c4c7;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	}
+
+	.wp-list-table-scroll > .widefat {
+		border: 0;
+		box-shadow: none;
+	}
+
+	.wp-list-table-scroll:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: -2px;
+	}
+
+	.wp-list-table-scroll > .fixed {
+		table-layout: auto;
+	}
+
+	/* Long words, URLs, and filenames must not set the table's intrinsic width. */
+	.wp-list-table-scroll > .fixed .column-primary,
+	.wp-list-table-scroll > .fixed .column-primary *,
+	.wp-list-table-scroll > .fixed .column-author,
+	.wp-list-table-scroll > .fixed .column-author *,
+	.wp-list-table-scroll > .fixed .column-categories,
+	.wp-list-table-scroll > .fixed .column-categories *,
+	.wp-list-table-scroll > .fixed .column-tags,
+	.wp-list-table-scroll > .fixed .column-tags *,
+	.wp-list-table-scroll > .fixed .column-response,
+	.wp-list-table-scroll > .fixed .column-response *,
+	.wp-list-table-scroll > .fixed .column-role,
+	.wp-list-table-scroll > .fixed .column-role *,
+	.wp-list-table-scroll > .fixed .column-slug,
+	.wp-list-table-scroll > .fixed .column-slug *,
+	.wp-list-table-scroll > .fixed .column-locations,
+	.wp-list-table-scroll > .fixed .column-locations * {
+		overflow-wrap: anywhere;
+	}
+
+	:where(.wp-list-table-scroll) > .fixed .column-author,
+	:where(.wp-list-table-scroll) > .fixed .column-categories,
+	:where(.wp-list-table-scroll) > .fixed .column-tags,
+	:where(.wp-list-table-scroll) > .fixed .column-date,
+	:where(.wp-list-table-scroll) > .fixed .column-response,
+	:where(.wp-list-table-scroll) > .fixed .column-role,
+	:where(.wp-list-table-scroll) > .fixed .column-slug,
+	:where(.wp-list-table-scroll) > .fixed .column-locations {
+		width: auto;
+	}
+
+	.wp-list-table-scroll > .fixed th.column-author,
+	.wp-list-table-scroll > .fixed th.column-categories,
+	.wp-list-table-scroll > .fixed th.column-tags,
+	.wp-list-table-scroll > .fixed th.column-response,
+	.wp-list-table-scroll > .fixed th.column-role,
+	.wp-list-table-scroll > .fixed th.column-slug,
+	.wp-list-table-scroll > .fixed th.column-locations {
+		min-width: 10em;
+	}
+
+	.wp-list-table-scroll > .fixed th.column-date {
+		min-width: 12em;
+	}
+
+	.wp-list-table-scroll > .fixed th.column-primary {
+		min-width: 20em;
+	}
+}
+
 @media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
 	.plugin-card .action-links {
 		position: static;
