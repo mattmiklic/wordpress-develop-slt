@@ -1866,46 +1866,35 @@ div.action-links,
 		min-width: 20em;
 	}
 
-	@supports (animation-timeline: scroll(inline)) {
-		/* Share the table's scrollable area so the shadow sticks to the viewport. */
-		.wp-list-table-scroll {
-			display: grid;
-		}
+	/* Share the table's scrollable area so the shadow sticks to the viewport. */
+	.wp-list-table-scroll {
+		display: grid;
+	}
 
-		.wp-list-table-scroll > .widefat,
-		.wp-list-table-scroll::after {
-			grid-area: 1 / 1;
-		}
+	.wp-list-table-scroll > .widefat,
+	.wp-list-table-scroll::after {
+		grid-area: 1 / 1;
+	}
 
-		.wp-list-table-scroll::after {
-			content: "";
-			position: sticky;
-			inset-inline-end: 0;
-			justify-self: end;
-			width: 12px;
-			z-index: 1;
-			pointer-events: none;
-			/* rtl:ignore */
-			background: linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent);
-			/* Without overflow, the timeline is inactive and the shadow stays hidden. */
-			opacity: 0;
-			animation: wp-list-table-scroll-shadow 1s step-end both;
-			animation-timeline: scroll(inline);
-		}
+	.wp-list-table-scroll::after {
+		content: "";
+		position: sticky;
+		inset-inline-end: 0;
+		justify-self: end;
+		width: 12px;
+		z-index: 1;
+		pointer-events: none;
+		/* rtl:ignore */
+		background: linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent);
+		opacity: 0;
+	}
 
-		.wp-list-table-scroll:dir(rtl)::after {
-			transform: scaleX(-1);
-		}
+	.wp-list-table-scroll.has-scroll-overflow::after {
+		opacity: 1;
+	}
 
-		@keyframes wp-list-table-scroll-shadow {
-			from {
-				opacity: 1;
-			}
-
-			to {
-				opacity: 0;
-			}
-		}
+	.wp-list-table-scroll:dir(rtl)::after {
+		transform: scaleX(-1);
 	}
 }
 
