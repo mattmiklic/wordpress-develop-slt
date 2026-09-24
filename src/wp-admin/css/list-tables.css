@@ -1790,12 +1790,17 @@ div.action-links,
 /* =Media Queries
 -------------------------------------------------------------- */
 
+.wp-list-table-scroll-edge {
+	display: none;
+}
+
 @media screen and (min-width: 783px) {
 	.wp-list-table-scroll {
 		clear: both;
 		overflow-x: auto;
 		overflow-y: hidden;
 		overscroll-behavior-x: none;
+		scroll-padding-inline: 32px;
 		border: 1px solid #c3c4c7;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 	}
@@ -1867,48 +1872,75 @@ div.action-links,
 		min-width: 20em;
 	}
 
-	/* Share the table's scrollable area so the shadows stick to the viewport. */
+	/* Share the table's scrollable area so the controls stick to the viewport. */
 	.wp-list-table-scroll {
 		display: grid;
 	}
 
 	.wp-list-table-scroll > .widefat,
-	.wp-list-table-scroll::before,
-	.wp-list-table-scroll::after {
+	.wp-list-table-scroll-edge {
 		grid-area: 1 / 1;
 	}
 
-	.wp-list-table-scroll::before,
-	.wp-list-table-scroll::after {
-		content: "";
+	.wp-list-table-scroll-edge {
+		display: flex;
 		position: sticky;
-		width: 12px;
+		width: 32px;
+		box-sizing: border-box;
+		background: #fff;
 		z-index: 1;
-		pointer-events: none;
-		opacity: 0;
+		visibility: hidden;
 	}
 
-	.wp-list-table-scroll::before {
+	.wp-list-table-scroll-edge-start {
 		inset-inline-start: 0;
 		justify-self: start;
-		/* rtl:ignore */
-		background: linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent);
+		border-inline-end: 1px solid #c3c4c7;
 	}
 
-	.wp-list-table-scroll::after {
+	.wp-list-table-scroll-edge-end {
 		inset-inline-end: 0;
 		justify-self: end;
-		/* rtl:ignore */
-		background: linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent);
+		border-inline-start: 1px solid #c3c4c7;
 	}
 
-	.wp-list-table-scroll.has-scroll-overflow-start::before,
-	.wp-list-table-scroll.has-scroll-overflow-end::after {
-		opacity: 1;
+	.wp-list-table-scroll.has-scroll-overflow-start > .wp-list-table-scroll-edge-start,
+	.wp-list-table-scroll.has-scroll-overflow-end > .wp-list-table-scroll-edge-end {
+		visibility: visible;
 	}
 
-	.rtl .wp-list-table-scroll::before,
-	.rtl .wp-list-table-scroll::after {
+	.wp-list-table-scroll-edge button {
+		display: flex;
+		position: relative;
+		/* The pinned controls already occupy the space reserved by scroll padding. */
+		scroll-margin-inline: -32px;
+		align-items: flex-start;
+		justify-content: center;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: #fff;
+		color: #3c434a;
+		cursor: pointer;
+	}
+
+	.wp-list-table-scroll-edge .dashicons {
+		position: absolute;
+		top: var(--wp-list-table-scroll-icon-top, calc(50% - 10px));
+	}
+
+	.wp-list-table-scroll-edge button:hover {
+		background: #f0f0f1;
+		color: #135e96;
+	}
+
+	.wp-list-table-scroll-edge button:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: -2px;
+	}
+
+	.rtl .wp-list-table-scroll-edge .dashicons {
 		transform: scaleX(-1);
 	}
 }
