@@ -1787,6 +1787,11 @@ div.action-links,
 	width: 80px;
 }
 
+.wp-list-table-scroll:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color);
+	outline-offset: -2px;
+}
+
 /* =Media Queries
 -------------------------------------------------------------- */
 
@@ -1803,11 +1808,6 @@ div.action-links,
 	.wp-list-table-scroll > .widefat {
 		border: 0;
 		box-shadow: none;
-	}
-
-	.wp-list-table-scroll:focus-visible {
-		outline: 2px solid var(--wp-admin-theme-color);
-		outline-offset: -2px;
 	}
 
 	.wp-list-table-scroll > .fixed {
