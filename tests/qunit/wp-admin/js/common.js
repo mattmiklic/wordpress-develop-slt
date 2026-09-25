@@ -2,7 +2,7 @@
 jQuery( function() {
 	const content = document.getElementById( 'wpbody-content' );
 	const tableMarkup = '<table class="wp-list-table"><tbody><tr><td>Post title</td></tr></tbody></table>';
-	const wrapperMarkup = '<div class="wp-list-table-scroll" tabindex="0">' + tableMarkup + '</div>';
+	const wrapperMarkup = '<div class="wp-list-table-scroll">' + tableMarkup + '</div>';
 
 	function overflow( wrapper ) {
 		return [
@@ -27,7 +27,7 @@ jQuery( function() {
 
 	const initialOverflow = overflow( content.firstElementChild );
 
-	QUnit.module( 'List table scroll controls', {
+	QUnit.module( 'List table overflow indicators', {
 		beforeEach: async function() {
 			this.sandbox = sinon.createSandbox();
 			content.innerHTML = wrapperMarkup;
@@ -45,45 +45,10 @@ jQuery( function() {
 
 	QUnit.test( 'Initializes overflow indicators for tables present on page load', function( assert ) {
 		assert.deepEqual( initialOverflow, [ false, true ], 'Only the end has hidden content on page load.' );
-	} );
-
-	QUnit.test( 'Creates native buttons with accessible labels', function( assert ) {
-		const wrapper = this.wrapper;
-		const labels = [ 'Scroll to previous columns', 'Scroll to next columns' ];
-
-		[ 'start', 'end' ].forEach( function( edge, index ) {
-			const button = wrapper.querySelector( '.wp-list-table-scroll-edge-' + edge ).firstElementChild;
-			assert.strictEqual( button.tagName, 'BUTTON', 'The ' + edge + ' control is a native button.' );
-			assert.strictEqual( button.type, 'button', 'The control does not submit a form.' );
-			assert.strictEqual( button.getAttribute( 'aria-label' ), labels[ index ], 'The button identifies its scroll direction.' );
-			assert.strictEqual( button.title, labels[ index ], 'The tooltip matches the accessible label.' );
-			assert.strictEqual( button.firstElementChild.getAttribute( 'aria-hidden' ), 'true', 'The decorative icon is hidden from assistive technology.' );
-		} );
+		assert.strictEqual( this.wrapper.childElementCount, 1, 'Initialization leaves only the table inside its wrapper.' );
 	} );
 
 	[ 'ltr', 'rtl' ].forEach( function( direction ) {
-		QUnit.test( 'Scrolls by a viewport with overlap in ' + direction, async function( assert ) {
-			const wrapper = this.wrapper;
-			const sign = direction === 'rtl' ? -1 : 1;
-			const previous = wrapper.querySelector( '.wp-list-table-scroll-edge-start button' );
-			const next = wrapper.querySelector( '.wp-list-table-scroll-edge-end button' );
-			this.sandbox.stub( window, 'matchMedia' ).callThrough()
-				.withArgs( '(prefers-reduced-motion: reduce)' ).returns( { matches: true } );
-			wrapper.dir = direction;
-			this.table.style.width = '2400px';
-			await afterResize();
-			scrollTo( wrapper, 0 );
-
-			next.click();
-			assert.strictEqual( wrapper.scrollLeft, sign * 736, 'Next advances through the 800px viewport with 64px of overlap.' );
-
-			next.click();
-			assert.strictEqual( wrapper.scrollLeft, sign * 1472, 'Another click advances from the current position.' );
-
-			previous.click();
-			assert.strictEqual( wrapper.scrollLeft, sign * 736, 'Previous reverses the scroll direction.' );
-		} );
-
 		QUnit.test( 'Updates both overflow indicators when scrolling in ' + direction, function( assert ) {
 			const wrapper = this.wrapper;
 			const sign = direction === 'rtl' ? -1 : 1;
@@ -134,63 +99,6 @@ jQuery( function() {
 		} );
 	} );
 
-	QUnit.test( 'Uses the current reduced-motion preference for button scrolling', function( assert ) {
-		const scrollBy = this.sandbox.stub( this.wrapper, 'scrollBy' );
-		const preference = { matches: false };
-		const next = this.wrapper.querySelector( '.wp-list-table-scroll-edge-end button' );
-		this.sandbox.stub( window, 'matchMedia' ).callThrough()
-			.withArgs( '(prefers-reduced-motion: reduce)' ).returns( preference );
-
-		next.click();
-		assert.deepEqual( scrollBy.firstCall.args, [ { left: 736, behavior: 'smooth' } ], 'Scrolling is smooth without reduced motion.' );
-
-		preference.matches = true;
-		next.click();
-		assert.deepEqual( scrollBy.secondCall.args, [ { left: 736, behavior: 'instant' } ], 'Enabling reduced motion makes the next scroll immediate.' );
-	} );
-
-	QUnit.test( 'Returns focus to the wrapper when a focused control disappears', async function( assert ) {
-		const wrapper = this.wrapper;
-
-		[ 'start', 'end' ].forEach( function( edge ) {
-			const button = wrapper.querySelector( '.wp-list-table-scroll-edge-' + edge + ' button' );
-			scrollTo( wrapper, 200 );
-			button.focus( { preventScroll: true } );
-			assert.strictEqual( document.activeElement, button, 'The ' + edge + ' control receives keyboard focus.' );
-
-			scrollTo( wrapper, 250 );
-			assert.strictEqual( document.activeElement, button, 'Focus stays on a control while its edge still overflows.' );
-
-			scrollTo( wrapper, edge === 'start' ? 0 : 400 );
-			assert.strictEqual( document.activeElement, wrapper, 'Focus returns to the wrapper at the ' + edge + ' boundary.' );
-		} );
-
-		scrollTo( wrapper, 0 );
-		wrapper.querySelector( '.wp-list-table-scroll-edge-end button' ).focus( { preventScroll: true } );
-		this.table.style.width = '600px';
-		await afterResize();
-		assert.strictEqual( document.activeElement, wrapper, 'Removing overflow on resize also returns focus to the wrapper.' );
-	} );
-
-	QUnit.test( 'Centers icons in the visible area below the admin toolbar', async function( assert ) {
-		const button = this.wrapper.querySelector( '.wp-list-table-scroll-edge-start button' );
-		const bounds = this.sandbox.stub( button, 'getBoundingClientRect' );
-		// Supply viewport bounds independently of the off-screen fixture.
-		this.sandbox.stub( window, 'innerHeight' ).value( 600 );
-		this.sandbox.stub( document.getElementById( 'wpadminbar' ), 'getBoundingClientRect' )
-			.returns( new window.DOMRect( 0, 0, 800, 32 ) );
-
-		bounds.returns( new window.DOMRect( 0, 100, 32, 1000 ) );
-		window.dispatchEvent( new Event( 'scroll' ) );
-		await afterResize();
-		assert.strictEqual( this.wrapper.style.getPropertyValue( '--wp-list-table-scroll-icon-top' ), '240px', 'The icon is centered in the visible part of a tall table.' );
-
-		bounds.returns( new window.DOMRect( 0, -100, 32, 1000 ) );
-		window.dispatchEvent( new Event( 'scroll' ) );
-		await afterResize();
-		assert.strictEqual( this.wrapper.style.getPropertyValue( '--wp-list-table-scroll-icon-top' ), '406px', 'Page scrolling keeps the icon below the toolbar and within the viewport.' );
-	} );
-
 	QUnit.test( 'Updates overflow indicators when the table or its viewport changes width', async function( assert ) {
 		this.table.style.width = '600px';
 		await afterResize();
@@ -216,9 +124,6 @@ jQuery( function() {
 		await afterResize();
 		assert.deepEqual( overflow( content.firstElementChild ), [ false, true ], 'The replacement is initialized.' );
 		assert.deepEqual( overflow( oldWrapper ), [ false, false ], 'The old wrapper loses its overflow indicators.' );
-		assert.strictEqual( oldWrapper.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 0, 'The old controls are removed.' );
-		assert.strictEqual( oldWrapper.style.getPropertyValue( '--wp-list-table-scroll-icon-top' ), '', 'The old icon position is cleared.' );
-		assert.strictEqual( content.firstElementChild.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 2, 'The replacement has one pair of controls.' );
 		assert.strictEqual( disconnect.callCount, 1, 'The old resize observer is disconnected.' );
 
 		scrollTo( oldWrapper, 200 );
@@ -236,20 +141,18 @@ jQuery( function() {
 		await Promise.resolve();
 		assert.notOk( observe.called, 'Changing a row does not add another resize observer.' );
 		assert.notOk( disconnect.called, 'Changing a row retains the existing observer.' );
-		assert.strictEqual( this.wrapper.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 2, 'Changing a row does not duplicate controls.' );
 
 		this.wrapper.innerHTML = tableMarkup;
 		await afterResize();
 		assert.strictEqual( disconnect.callCount, 1, 'Replacing the table disconnects its old observer.' );
 		assert.strictEqual( observe.callCount, 2, 'The new observer watches the table and its wrapper.' );
-		assert.strictEqual( this.wrapper.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 2, 'Replacing the table creates one pair of controls.' );
 
 		this.wrapper.firstElementChild.style.width = '600px';
 		await afterResize();
 		assert.deepEqual( overflow( this.wrapper ), [ false, false ], 'Resizing the replacement table updates its overflow indicators.' );
 	} );
 
-	QUnit.test( 'Moves scroll controls when a table moves to another wrapper', async function( assert ) {
+	QUnit.test( 'Moves overflow tracking when a table moves to another wrapper', async function( assert ) {
 		const oldWrapper = this.wrapper;
 		const newWrapper = document.createElement( 'div' );
 		newWrapper.className = 'wp-list-table-scroll';
@@ -260,8 +163,6 @@ jQuery( function() {
 		await afterResize();
 		assert.deepEqual( overflow( oldWrapper ), [ false, false ], 'The old wrapper loses its overflow indicators.' );
 		assert.deepEqual( overflow( newWrapper ), [ false, true ], 'The new wrapper is initialized.' );
-		assert.strictEqual( oldWrapper.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 0, 'The old wrapper loses its controls.' );
-		assert.strictEqual( newWrapper.querySelectorAll( '.wp-list-table-scroll-edge' ).length, 2, 'The new wrapper has one pair of controls.' );
 
 		scrollTo( newWrapper, 200 );
 		assert.deepEqual( overflow( newWrapper ), [ true, true ], 'The new wrapper responds to scrolling.' );
